@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="lib" path="C:/Users/sxxttxxs/eclipse-workspace/microRts/lib/jdom.jar"/>
+	<classpathentry kind="lib" path="C:/Users/sxxttxxs/eclipse-workspace/microRts/lib/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="C:/Users/sxxttxxs/eclipse-workspace/microRts/lib/minimal-json-0.9.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/sxxttxxs/eclipse-workspace/microRts/lib/weka.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
