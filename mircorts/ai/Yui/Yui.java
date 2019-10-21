@@ -27,7 +27,7 @@ public class Yui extends AbstractionLayerAI{
 	UnitType rangedType;
 	UnitType lightType;
 	boolean workerRush = false;
-	int maxHarvest = 3;
+	int maxHarvest = 4;
 	boolean defense = true;
 
 	List<Unit> troop = new LinkedList<Unit>();
