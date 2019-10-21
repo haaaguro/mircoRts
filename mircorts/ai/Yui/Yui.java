@@ -127,7 +127,7 @@ public class Yui extends AbstractionLayerAI{
 	             while(troop.size()>0) {
 	                 freeTroop.add(troop.remove(0));
 
-	                 if (freeTroop.size() >=7) {
+	                 if (freeTroop.size() >=6) {
 	                     for (Unit u : freeTroop) attackUnitBehavior(u, p, pgs);
 	                     for (Unit u : freeTroop) freeTroop.removeAll(freeTroop);
 	                 }
