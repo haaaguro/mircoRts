@@ -27,9 +27,9 @@ public class Yui extends AbstractionLayerAI{
 	UnitType rangedType;
 	UnitType lightType;
 	boolean workerRush = false;
-	int maxHarvest = 4;
+	int maxHarvest = 3;
 	boolean defense = true;
-
+	boolean Troopattack = false;
 	List<Unit> troop = new LinkedList<Unit>();
 	public Yui(UnitTypeTable utt) {
 		
@@ -90,16 +90,17 @@ public class Yui extends AbstractionLayerAI{
 		            	Runits.add(u);
 		            	 troop.add(u);
 		            }
-	           
+	            
 	  /*          if (u.getType().canAttack &&!u.getType().canHarvest&&
 		                u.getPlayer() == player) {
 		            	troop.add(u);
 		            }    */ 
 	           
 	        }
-		 
-		LanchesterEvaluationFunction lev = new LanchesterEvaluationFunction();
-		 float evaluate = lev.evaluate(0, 1, gs); 
+		 for(Unit u:troop) defendBehaviour(u, p, pgs);
+	//	 LanchesterEvaluationFunction lev = new LanchesterEvaluationFunction();
+	//	 float evaluate = lev.evaluate(0, 1, gs); 
+		 float evaluate=1;
 		 for(Unit u:pgs.getUnits()) {
 			 	if (u.getType()==baseType && 
 			 		u.getPlayer() == player && 
@@ -127,7 +128,8 @@ public class Yui extends AbstractionLayerAI{
 	             while(troop.size()>0) {
 	                 freeTroop.add(troop.remove(0));
 
-	                 if (freeTroop.size() >=6) {
+	                 if (freeTroop.size() >=2) {
+	                	 Troopattack = true;
 	                     for (Unit u : freeTroop) attackUnitBehavior(u, p, pgs);
 	                     for (Unit u : freeTroop) freeTroop.removeAll(freeTroop);
 	                 }
@@ -150,7 +152,7 @@ public class Yui extends AbstractionLayerAI{
 	                }
 	            }
 	        }
-	        if (closestEnemy!=null&&closestDistance<=u.getAttackRange()) {
+	        if (closestEnemy!=null&&closestDistance<=pgs.getWidth()/8) {
 	            attack(u,closestEnemy);
 	        }
 	    }
@@ -206,7 +208,7 @@ public class Yui extends AbstractionLayerAI{
                     harvest(harvestWorker, closestResource, closestBase);
                 }
             }
-            if(nbarracks==0&&!workerRush) {
+            if(nbarracks<2&&!workerRush) {
             	if (p.getResources() >= barracksType.cost && !freeWorkers.isEmpty()&&freeWorkers.size()>=2) {
                     Unit u = freeWorkers.remove(freeWorkers.size()-1);
                     int x = u.getX();
@@ -219,9 +221,13 @@ public class Yui extends AbstractionLayerAI{
                     buildIfNotAlreadyBuilding(u,barracksType,x,y,reservedPositions,p,pgs);
                 }
             }
-
-           // for(Unit u:freeWorkers) attackUnitBehavior(u, p, pgs);
-            troop.addAll(freeWorkers);
+            if(!Troopattack) {
+            	 for(Unit u:freeWorkers) defendBehaviour(u, p, pgs);
+            }
+            if(Troopattack||workerRush) {
+           for(Unit u:freeWorkers) attackUnitBehavior(u, p, pgs);
+           // troop.addAll(freeWorkers);
+            }
 			}
         }
 	}
@@ -250,9 +256,9 @@ public class Yui extends AbstractionLayerAI{
 			if (p.getResources()>=workerType.cost) {
 				  train(u, workerType);
 			}
-		} else if (p.getResources()>=workerType.cost&&evaluate<0.6) {
-			  train(u, workerType);
-		  }
+		} //else if (p.getResources()>=workerType.cost&&evaluate<0.4) {
+			//  train(u, workerType);
+		 // }
 		}else if(workerRush==true) {
 			if (p.getResources()>=workerType.cost) {
 				 train(u, workerType);
