@@ -14,9 +14,12 @@ import rts.GameState;
 import rts.PhysicalGameState;
 import rts.Player;
 import rts.PlayerAction;
+import rts.ResourceUsage;
+import rts.UnitAction;
 import rts.units.Unit;
 import rts.units.UnitType;
 import rts.units.UnitTypeTable;
+
 
 public class Yui extends AbstractionLayerAI{
 	UnitTypeTable nutt;
@@ -30,7 +33,9 @@ public class Yui extends AbstractionLayerAI{
 	int maxHarvest = 3;
 	boolean defense = true;
 	boolean Troopattack = false;
+	boolean top = false;
 	List<Unit> troop = new LinkedList<Unit>();
+	int building = 0;
 	public Yui(UnitTypeTable utt) {
 		
 		this(utt, new AStarPathFinding());
@@ -71,6 +76,7 @@ public class Yui extends AbstractionLayerAI{
 		 List<Unit> Lunits = new LinkedList<Unit>();
 		 List<Unit> Hunits = new LinkedList<Unit>();
 		 List<Unit> workers = new LinkedList<Unit>();
+		 Unit base = null;
 		 for(Unit u:pgs.getUnits()) {
 	            if (u.getType().canHarvest && 
 	                u.getPlayer() == player) {
@@ -95,12 +101,18 @@ public class Yui extends AbstractionLayerAI{
 		                u.getPlayer() == player) {
 		            	troop.add(u);
 		            }    */ 
-	           
+	           if(u.getType()==baseType) {
+	        	   base =u;
+	        	   if(u.getX()>pgs.getWidth()/2) {
+	        		   top = true;
+	        	   }
+	           }
 	        }
+		 if(!Troopattack) {
 		 for(Unit u:troop) defendBehaviour(u, p, pgs);
-	//	 LanchesterEvaluationFunction lev = new LanchesterEvaluationFunction();
-	//	 float evaluate = lev.evaluate(0, 1, gs); 
-		 float evaluate=1;
+		 }
+		 LanchesterEvaluationFunction lev = new LanchesterEvaluationFunction();
+		 float evaluate = lev.evaluate(0, 1, gs); 
 		 for(Unit u:pgs.getUnits()) {
 			 	if (u.getType()==baseType && 
 			 		u.getPlayer() == player && 
@@ -117,11 +129,15 @@ public class Yui extends AbstractionLayerAI{
 		// if(troop.size()>0) {
 			// for(Unit u:troop) attackUnitBehavior(u, p, pgs);
 		// } 
-		  troopBahaviour(troop,p,pgs,units);
+		 
+			 troopBahaviour(troop,p,gs,units,base);
+		
+		  
 		return translateActions(player, gs);
 	}
-	   public void troopBahaviour(List<Unit> troop,Player p, PhysicalGameState pgs,List<Unit> units)
-	     {
+	   public void troopBahaviour(List<Unit> troop,Player p, GameState gs,List<Unit> units, Unit base)
+	     {	 PhysicalGameState pgs = gs.getPhysicalGameState();
+	     	 ResourceUsage ru = gs.getResourceUsage();
 	         List<Unit> freeTroop = new LinkedList<Unit>();
 	         if (troop.size()>0) {
 	             for (Unit u : troop) defendBehaviour(u, p, pgs);
@@ -132,7 +148,18 @@ public class Yui extends AbstractionLayerAI{
 	                	 Troopattack = true;
 	                     for (Unit u : freeTroop) attackUnitBehavior(u, p, pgs);
 	                     for (Unit u : freeTroop) freeTroop.removeAll(freeTroop);
-	                 }
+	                 }else {
+	            	/* Unit target = base;
+	                	 for(int i=0;i<freeTroop.size();i++) {
+	                		Unit unit = freeTroop.get(i);
+	                		if(!top) {
+	                		move(unit, target.getX()-1-i,target.getY()); 
+	                		System.out.println(target.getX());
+	                		}else {
+	                		move(unit, target.getX()+1+i,target.getY());  
+		                	 }
+	                	 }
+	                */ }
 
 	             }
 	          }
@@ -208,15 +235,22 @@ public class Yui extends AbstractionLayerAI{
                     harvest(harvestWorker, closestResource, closestBase);
                 }
             }
-            if(nbarracks<2&&!workerRush) {
+            
+            if(nbarracks==0&&!workerRush) {
             	if (p.getResources() >= barracksType.cost && !freeWorkers.isEmpty()&&freeWorkers.size()>=2) {
-                    Unit u = freeWorkers.remove(freeWorkers.size()-1);
+            		
+                    Unit u = freeWorkers.remove(freeWorkers.size()-1-building);
                     int x = u.getX();
                     int y = u.getY();
-                    if(x>pgs.getWidth()/2) {
-                    	x=x-2;
+                    if(!top) {
+                    	x=x-2-building*2;
+                    	y=y-2;
                     }else {
-                    	x=x+2;
+                    	x=x+2+building*2;
+                    	y=y+2;
+                    }
+                    if(building<1) {
+                    building++;
                     }
                     buildIfNotAlreadyBuilding(u,barracksType,x,y,reservedPositions,p,pgs);
                 }
@@ -256,9 +290,7 @@ public class Yui extends AbstractionLayerAI{
 			if (p.getResources()>=workerType.cost) {
 				  train(u, workerType);
 			}
-		} //else if (p.getResources()>=workerType.cost&&evaluate<0.4) {
-			//  train(u, workerType);
-		 // }
+		} 
 		}else if(workerRush==true) {
 			if (p.getResources()>=workerType.cost) {
 				 train(u, workerType);
