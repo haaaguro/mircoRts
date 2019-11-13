@@ -36,6 +36,7 @@ public class Yui extends AbstractionLayerAI{
 	boolean top = false;
 	List<Unit> troop = new LinkedList<Unit>();
 	int building = 0;
+	Unit base = null;
 	public Yui(UnitTypeTable utt) {
 		
 		this(utt, new AStarPathFinding());
@@ -76,7 +77,8 @@ public class Yui extends AbstractionLayerAI{
 		 List<Unit> Lunits = new LinkedList<Unit>();
 		 List<Unit> Hunits = new LinkedList<Unit>();
 		 List<Unit> workers = new LinkedList<Unit>();
-		 Unit base = null;
+		 List<Unit> enemy = new LinkedList<Unit>();
+		 
 		 for(Unit u:pgs.getUnits()) {
 	            if (u.getType().canHarvest && 
 	                u.getPlayer() == player) {
@@ -96,21 +98,21 @@ public class Yui extends AbstractionLayerAI{
 		            	Runits.add(u);
 		            	 troop.add(u);
 		            }
-	            
+	            if(u.getPlayer()!= player) {
+	            		enemy.add(u);
+	            }
 	  /*          if (u.getType().canAttack &&!u.getType().canHarvest&&
 		                u.getPlayer() == player) {
 		            	troop.add(u);
 		            }    */ 
-	           if(u.getType()==baseType) {
+	           if(u.getType()==baseType&&u.getPlayer()==player) {
 	        	   base =u;
-	        	   if(u.getX()>pgs.getWidth()/2) {
+	        	   if(base.getX()<pgs.getWidth()/2) {
 	        		   top = true;
 	        	   }
 	           }
 	        }
-		 if(!Troopattack) {
-		 for(Unit u:troop) defendBehaviour(u, p, pgs);
-		 }
+		 
 		 LanchesterEvaluationFunction lev = new LanchesterEvaluationFunction();
 		 float evaluate = lev.evaluate(0, 1, gs); 
 		 for(Unit u:pgs.getUnits()) {
@@ -140,7 +142,9 @@ public class Yui extends AbstractionLayerAI{
 	     	 ResourceUsage ru = gs.getResourceUsage();
 	         List<Unit> freeTroop = new LinkedList<Unit>();
 	         if (troop.size()>0) {
-	             for (Unit u : troop) defendBehaviour(u, p, pgs);
+	        	 if(!Troopattack) {
+	        		 for(Unit u:troop) defendBehaviour(u, p, pgs);
+	        		 }
 	             while(troop.size()>0) {
 	                 freeTroop.add(troop.remove(0));
 
@@ -179,7 +183,7 @@ public class Yui extends AbstractionLayerAI{
 	                }
 	            }
 	        }
-	        if (closestEnemy!=null&&closestDistance<=pgs.getWidth()/8) {
+	        if (closestEnemy!=null&&closestDistance<=pgs.getWidth()/4) {
 	            attack(u,closestEnemy);
 	        }
 	    }
@@ -240,14 +244,16 @@ public class Yui extends AbstractionLayerAI{
             	if (p.getResources() >= barracksType.cost && !freeWorkers.isEmpty()&&freeWorkers.size()>=2) {
             		
                     Unit u = freeWorkers.remove(freeWorkers.size()-1-building);
-                    int x = u.getX();
-                    int y = u.getY();
+                    int x = base.getX();
+                    int y = base.getY();
+                    int x1 = u.getX();
+                    int y1 = u.getY();
                     if(!top) {
-                    	x=x-2-building*2;
-                    	y=y-2;
+                    	x=x-2;
+                    	y=y-building*2;
                     }else {
-                    	x=x+2+building*2;
-                    	y=y+2;
+                    	x=x1+2+building*2;
+                    	y=y1+2;
                     }
                     if(building<1) {
                     building++;
