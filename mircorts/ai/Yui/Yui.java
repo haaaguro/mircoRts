@@ -40,6 +40,7 @@ public class Yui extends AbstractionLayerAI{
 	Unit base = null;
 	Unit enemybase = null;
 	int ResourceUsed=0;
+	int attacker=2;
 	public Yui(UnitTypeTable utt) {
 		
 		this(utt, new AStarPathFinding());
@@ -179,11 +180,11 @@ public class Yui extends AbstractionLayerAI{
 	                 if(maxHarvest>0) {
 	                 if (freeTroop.size() >=2) {
 	                	 Troopattack = true;
-	                     for (Unit u : freeTroop) attackUnitBehavior(u, p,enemybase, pgs);
+	                     for (Unit u : freeTroop) attackUnitBehavior(u, p,pgs);
 	                     for (Unit u : freeTroop) freeTroop.removeAll(freeTroop);
 	                 }
 	                 }else {
-	                	 for (Unit u : freeTroop) attackUnitBehavior(u, p,enemybase, pgs);
+	                	 for (Unit u : freeTroop) attackUnitBehavior(u, p, pgs);
 	                     for (Unit u : freeTroop) freeTroop.removeAll(freeTroop);
 	            	/* Unit target = base;
 	                	 for(int i=0;i<freeTroop.size();i++) {
@@ -326,19 +327,34 @@ public class Yui extends AbstractionLayerAI{
             	 for(Unit u:freeWorkers) defendBehaviour(u, p, pgs);
             }
             if(Troopattack||workerRush) {
-            	
-           for(Unit u:freeWorkers) attackUnitBehavior(u, p,enemybase, pgs);
+            	if(!workerRush&&attacker>0&&ResourceUsed>20) {
+            	Unit worker = freeWorkers.remove(0);
+            	attackWorkers(worker,p,pgs,enemybase);
+            	attacker--;
+            	}
+           for(Unit u:freeWorkers) attackUnitBehavior(u, p,pgs);
            //
             }
             if(maxHarvest == 0) {
-            	System.out.print("²Î¾ü");
             	troop.addAll(harvestWorkers);
             }
 			}
         }
 	}
 
-	private void attackUnitBehavior(Unit u, Player p,Unit enemybase, PhysicalGameState pgs) {
+	private void attackWorkers(Unit worker, Player p, PhysicalGameState pgs, Unit enemybase) {
+		int x = worker.getX();
+		int y = worker.getY();
+		int targetX = enemybase.getX();
+		int targetY = enemybase.getY();
+		if(x<targetX) {
+			move(worker,targetX,y);
+		}else{
+			move(worker,x,targetY);
+		}
+	}
+
+	private void attackUnitBehavior(Unit u, Player p,PhysicalGameState pgs) {
 		Unit closestEnemy = null;
         int closestDistance = 0;
         for(Unit u2:pgs.getUnits()) {
@@ -349,11 +365,7 @@ public class Yui extends AbstractionLayerAI{
                     closestDistance = d;
                 }
             }
-            if(u2.getType()==workerType) {
-            	
-            }
         }
-        
         if (closestEnemy!=null) {
             attack(u,closestEnemy);
         }
