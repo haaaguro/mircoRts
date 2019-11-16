@@ -34,7 +34,6 @@ public class Yui extends AbstractionLayerAI{
 	boolean defense = true;
 	boolean Troopattack = false;
 	boolean top = false;
-	boolean harvestflag = true;
 	List<Unit> troop = new LinkedList<Unit>();
 	int building = 0;
 	Unit base = null;
@@ -44,7 +43,7 @@ public class Yui extends AbstractionLayerAI{
 	public Yui(UnitTypeTable utt) {
 		
 		this(utt, new AStarPathFinding());
-		// TODO Auto-generated constructor stub
+
 	}
 
 	public Yui(UnitTypeTable utt, AStarPathFinding aStarPathFinding) {
@@ -258,7 +257,7 @@ public class Yui extends AbstractionLayerAI{
             Unit closestBase = null;
             Unit closestResource = null;
             int closestDistance = 0;
-            List<Integer> reservedPositions = new LinkedList<Integer>();
+            
             for(Unit u2:pgs.getUnits()) {
                 if (u2.getType().isResource) { 
                     int d = Math.abs(u2.getX() - harvestWorker.getX()) + Math.abs(u2.getY() - harvestWorker.getY());
@@ -280,6 +279,9 @@ public class Yui extends AbstractionLayerAI{
                     harvest(harvestWorker, closestResource, closestBase);
                 }
             }
+			}
+		}
+		List<Integer> reservedPositions = new LinkedList<Integer>();
             if(!top) {
             if(!workerRush&&building<2) {
             	if (p.getResources() >= barracksType.cost && freeWorkers.size()>=2) {
@@ -323,15 +325,17 @@ public class Yui extends AbstractionLayerAI{
                      }
                  }
             }
+            
+	
             if(!Troopattack) {
             	 for(Unit u:freeWorkers) defendBehaviour(u, p, pgs);
             }
             if(Troopattack||workerRush) {
-            	if(!workerRush&&attacker>0&&ResourceUsed>20) {
-            	Unit worker = freeWorkers.remove(0);
-            	attackWorkers(worker,p,pgs,enemybase);
-            	attacker--;
-            	}
+            	//if(!workerRush&&attacker>0&&ResourceUsed>20) {
+            	//Unit worker = freeWorkers.remove(0);
+            	//attackWorkers(worker,p,pgs,enemybase);
+            	//attacker--;
+            	//}
            for(Unit u:freeWorkers) attackUnitBehavior(u, p,pgs);
            //
             }
@@ -339,8 +343,7 @@ public class Yui extends AbstractionLayerAI{
             	troop.addAll(harvestWorkers);
             }
 			}
-        }
-	}
+        
 
 	private void attackWorkers(Unit worker, Player p, PhysicalGameState pgs, Unit enemybase) {
 		int x = worker.getX();
