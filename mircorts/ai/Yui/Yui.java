@@ -70,10 +70,16 @@ public class Yui extends AbstractionLayerAI{
 		 Player p = gs.getPlayer(player);
 		 int size = pgs.getWidth()*pgs.getHeight();
 		 
-		 if(size<=256) {
+		 if(size<=144) {
 			 workerRush = true;
 			 maxHarvest = 1;
 			 defense = false;
+		 }
+		 if(size==256) {
+			 workerRush = false;
+			 maxHarvest = 2;
+			 defense = false;
+			 building =1;
 		 }
 		 List<Unit> units = new LinkedList<Unit>();
 		 List<Unit> Runits = new LinkedList<Unit>();
